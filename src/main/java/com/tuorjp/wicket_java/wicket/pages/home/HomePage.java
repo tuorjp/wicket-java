@@ -1,11 +1,11 @@
 package com.tuorjp.wicket_java.wicket.pages.home;
 
 import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-import org.apache.wicket.markup.html.WebPage;
+import com.tuorjp.wicket_java.wicket.pages.BasePage;
 import org.apache.wicket.markup.html.basic.Label;
 
 @WicketHomePage
-public class HomePage extends WebPage {
+public class HomePage extends BasePage {
     public HomePage() {
         super();
 
