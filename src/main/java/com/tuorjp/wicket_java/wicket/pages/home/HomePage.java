@@ -9,6 +9,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.PropertyModel;
@@ -26,23 +27,37 @@ public class HomePage extends BasePage {
         Label welcomeLabel = new Label("welcomeMessage", "Aplicação rodando! ");
         add(welcomeLabel);
 
+        //formulário principal
         Form<Void> form = new Form("form");
         add(form);
 
+        WebMarkupContainer formNew = new WebMarkupContainer("formNew");
         AjaxLink<Void> btnAdd = new AjaxLink<>("addItemLink") {
+            @Override
+            public void onClick(AjaxRequestTarget ajaxRequestTarget) {
+                formNew.setVisible(!formNew.isVisible());
+                //a linha acima muda o status no backend e a linha abaixo atualiza a UI
+                ajaxRequestTarget.add(formNew);
+            }
+        };
+        form.add(btnAdd);
+
+        //adicionando formulário invisível de novo item dentro do form principal
+        formNew.setOutputMarkupPlaceholderTag(true);
+        formNew.setVisible(false);
+        form.add(formNew);
+
+        TextField<String> title = new TextField<>("title");
+        TextField<String> body = new TextField<>("body");
+        AjaxLink<Void> btnSave = new AjaxLink<Void>("save") {
             @Override
             public void onClick(AjaxRequestTarget ajaxRequestTarget) {
 
             }
         };
-        form.add(btnAdd);
+        formNew.add(title, body, btnSave);
 
-        //adicionando formulário invisível dentro do form principal
-        WebMarkupContainer formNew = new WebMarkupContainer("formNew");
-        formNew.setOutputMarkupPlaceholderTag(true);
-        formNew.setVisible(false);
-        form.add(formNew);
-
+        //lista de tarefas
         List<Todo> todos = mongoDBService.fetchAllItems();
 
         ListView<Todo> todoList = new ListView<>("todoList", todos) {
