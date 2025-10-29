@@ -9,6 +9,7 @@ import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -16,6 +17,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import java.util.List;
@@ -95,11 +97,13 @@ public class HomePage extends BasePage {
         ListView<Todo> todoList = new ListView<>("todoList", todoListModel) {
             @Override
             protected void populateItem(ListItem<Todo> listItem) {
+                listItem.add(new CheckBox("selected", new PropertyModel<>(listItem.getModel(), "selected")));
                 listItem.add(new Label("title", () -> listItem.getModelObject().getTitle()));
                 listItem.add(new Label("body", () -> listItem.getModelObject().getBody()));
             }
         };
 
+        todoList.setReuseItems(true);
         form.add(todoList);
     }
 

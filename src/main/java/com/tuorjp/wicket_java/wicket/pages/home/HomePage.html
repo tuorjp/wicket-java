@@ -29,10 +29,12 @@
             <div class="items">
                 <table class="table">
                     <tr>
+                        <th style="width: 20px"></th>
                         <th style="width: 200px">Title</th>
                         <th>Description</th>
                     </tr>
                     <tr wicket:id="todoList">
+                        <td><input wicket:id="selected" type="checkbox"></td>
                         <td wicket:id="title"></td>
                         <td wicket:id="body"></td>
                     </tr>
