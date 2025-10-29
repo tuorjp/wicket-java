@@ -36,9 +36,13 @@ public class HomePage extends BasePage {
         feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel);
 
+        WebMarkupContainer sectionForm = new WebMarkupContainer("sectionForm");
+        sectionForm.setOutputMarkupId(true);
+        add(sectionForm);
+
         //formulário principal
         Form<Void> form = new Form("form");
-        add(form);
+        sectionForm.add(form);
 
         WebMarkupContainer formNew = new WebMarkupContainer("formNew");
         AjaxLink<Void> btnAdd = new AjaxLink<>("addItemLink") {
@@ -74,7 +78,7 @@ public class HomePage extends BasePage {
 
                 formNew.setVisible(false);
                 showInfo(ajaxRequestTarget,"Tarefa adicionada com sucesso");
-                ajaxRequestTarget.add(formNew);
+                ajaxRequestTarget.add(sectionForm);
             }
         };
         btnSave.add(new AjaxFormSubmitBehavior(form, "click") {});
@@ -96,7 +100,7 @@ public class HomePage extends BasePage {
             }
         };
 
-        add(todoList);
+        form.add(todoList);
     }
 
     private void showInfo(AjaxRequestTarget target, String msg) {
