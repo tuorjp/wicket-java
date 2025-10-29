@@ -8,11 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 @Service
 @Slf4j
 public class MongoDBService {
     @Autowired
-    @Getter
     private TodoRepository todoRepository;
 
     @PostConstruct
@@ -30,5 +33,11 @@ public class MongoDBService {
 
     public void save(Todo todo) {
         todoRepository.save(todo);
+    }
+
+    public List<Todo> fetchAllItems(){
+        return StreamSupport
+                .stream(todoRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
     }
 }

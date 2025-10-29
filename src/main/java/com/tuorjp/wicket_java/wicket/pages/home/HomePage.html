@@ -1,6 +1,18 @@
 <wicket:extend>
-    <h1>Página inicial WICKET</h1>
-    <p>
-        <span wicket:id="welcomeMessage">Texto da mensagem</span>
-    </p>
+    <style>
+    </style>
+    <h2 wicket:id="welcomeMessage">Apache wicket TODO app</h2>
+
+    <div class="items">
+        <table class="table">
+            <tr>
+               <th style="width: 200px">Title</th>
+                <th>Description</th>
+            </tr>
+            <tr wicket:id="todoList">
+                <td wicket:id="title"></td>
+                <td wicket:id="body"></td>
+            </tr>
+        </table>
+    </div>
 </wicket:extend>
