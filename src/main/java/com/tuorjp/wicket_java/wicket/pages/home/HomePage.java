@@ -13,8 +13,9 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import java.util.List;
@@ -25,9 +26,15 @@ public class HomePage extends BasePage {
     @SpringBean
     MongoDBService mongoDBService;
 
+    FeedbackPanel feedbackPanel;
+
     public HomePage() {
-        Label welcomeLabel = new Label("welcomeMessage", "Aplicação rodando! ");
+        Label welcomeLabel = new Label("welcomeMessage", "Aplicação Lista de Tarefas ");
         add(welcomeLabel);
+
+        feedbackPanel = new FeedbackPanel("feedbackPanel");
+        feedbackPanel.setOutputMarkupId(true);
+        add(feedbackPanel);
 
         //formulário principal
         Form<Void> form = new Form("form");
@@ -66,6 +73,7 @@ public class HomePage extends BasePage {
                 todoItem.setBody("");
 
                 formNew.setVisible(false);
+                showInfo(ajaxRequestTarget,"Tarefa adicionada com sucesso");
                 ajaxRequestTarget.add(formNew);
             }
         };
@@ -73,16 +81,26 @@ public class HomePage extends BasePage {
         formNew.add(title, body, btnSave);
 
         //lista de tarefas
-        List<Todo> todos = mongoDBService.fetchAllItems();
+        LoadableDetachableModel<List<Todo>> todoListModel = new LoadableDetachableModel<List<Todo>>() {
+            @Override
+            protected List<Todo> load() {
+                return mongoDBService.fetchAllItems();
+            }
+        };
 
-        ListView<Todo> todoList = new ListView<>("todoList", todos) {
+        ListView<Todo> todoList = new ListView<>("todoList", todoListModel) {
             @Override
             protected void populateItem(ListItem<Todo> listItem) {
-                listItem.add(new Label("title", new PropertyModel<String>(listItem.getModel(), "title")));
+                listItem.add(new Label("title", () -> listItem.getModelObject().getTitle()));
                 listItem.add(new Label("body", () -> listItem.getModelObject().getBody()));
             }
         };
 
         add(todoList);
+    }
+
+    private void showInfo(AjaxRequestTarget target, String msg) {
+        info(msg);
+        target.add(feedbackPanel);
     }
 }
