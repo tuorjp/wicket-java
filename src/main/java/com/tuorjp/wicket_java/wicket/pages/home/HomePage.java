@@ -67,7 +67,7 @@ public class HomePage extends BasePage {
 
         AjaxSubmitLink btnRemove = new AjaxSubmitLink("remove", form){
             @Override
-            protected void onSubmit(AjaxRequestTarget ajaxRequestTarget) { // Mude de onClick para onSubmit
+            protected void onSubmit(AjaxRequestTarget ajaxRequestTarget) {
                 List<Todo> todos = todoListModel.getObject();
 
                 List<Todo> todosToRemove = todos.stream()
