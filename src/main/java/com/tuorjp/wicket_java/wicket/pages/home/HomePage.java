@@ -5,6 +5,7 @@ import com.tuorjp.wicket_java.model.Todo;
 import com.tuorjp.wicket_java.service.MongoDBService;
 import com.tuorjp.wicket_java.wicket.pages.BasePage;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -12,6 +13,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -47,14 +49,27 @@ public class HomePage extends BasePage {
         formNew.setVisible(false);
         form.add(formNew);
 
+        //vincula o model aos campos do formulário
+        Todo todoItem = new Todo();
+        form.setDefaultModel(new CompoundPropertyModel<Object>(todoItem));
         TextField<String> title = new TextField<>("title");
         TextField<String> body = new TextField<>("body");
         AjaxLink<Void> btnSave = new AjaxLink<Void>("save") {
             @Override
             public void onClick(AjaxRequestTarget ajaxRequestTarget) {
+                Todo todo = new Todo();
+                todo.setTitle(title.getValue());
+                todo.setBody(body.getValue());
+                mongoDBService.save(todo);
 
+                todoItem.setTitle("");
+                todoItem.setBody("");
+
+                formNew.setVisible(false);
+                ajaxRequestTarget.add(formNew);
             }
         };
+        btnSave.add(new AjaxFormSubmitBehavior(form, "click") {});
         formNew.add(title, body, btnSave);
 
         //lista de tarefas
