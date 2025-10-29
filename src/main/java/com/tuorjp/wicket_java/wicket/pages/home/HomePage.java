@@ -134,6 +134,29 @@ public class HomePage extends BasePage {
 
         todoList.setReuseItems(true);
         form.add(todoList);
+
+        AjaxLink<Void> btnSelectAll = new AjaxLink<>("btnSelectAll") {
+            @Override
+            public void onClick(AjaxRequestTarget ajaxRequestTarget) {
+                List<Todo> todos = todoListModel.getObject();
+                for(Todo todo : todos) {
+                    todo.setSelected(true);
+                }
+                ajaxRequestTarget.add(sectionForm);
+            }
+        };
+        AjaxLink<Void> btnDeselectAll = new AjaxLink<>("btnDeselectAll") {
+            @Override
+            public void onClick(AjaxRequestTarget ajaxRequestTarget) {
+                List<Todo> todos = todoListModel.getObject();
+                for(Todo todo : todos) {
+                    todo.setSelected(false);
+                }
+                ajaxRequestTarget.add(sectionForm);
+            }
+        };
+
+        add(btnSelectAll, btnDeselectAll);
     }
 
     private void showInfo(AjaxRequestTarget target, String msg) {
