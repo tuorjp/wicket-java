@@ -26,9 +26,9 @@ public class HomePage extends BasePage {
 
         ListView<Todo> todoList = new ListView<>("todoList", todos) {
             @Override
-            protected void populateItem(ListItem listItem) {
+            protected void populateItem(ListItem<Todo> listItem) {
                 listItem.add(new Label("title", new PropertyModel<String>(listItem.getModel(), "title")));
-                listItem.add(new Label("body", new PropertyModel<String>(listItem.getModel(), "body")));
+                listItem.add(new Label("body", () -> listItem.getModelObject().getBody()));
             }
         };
 
