@@ -27,6 +27,7 @@ import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
 @WicketHomePage
@@ -103,14 +104,12 @@ public class HomePage extends BasePage {
             protected ResourceResponse newResourceResponse(Attributes attributes) {
                 ResourceResponse response = new ResourceResponse();
 
-                response.setFileName("excel-todos.xlsx");
-                response.setContentDisposition(ContentDisposition.ATTACHMENT);
-
                 response.setWriteCallback(new WriteCallback() {
                     @Override
                     public void writeData(Attributes attributes) throws IOException {
                         try {
-                            List<Todo> todos = todoListModel.getObject();
+//                            List<Todo> todos = todoListModel.getObject();
+                            List<Todo> todos = mongoDBService.fetchAllItems();
                             Workbook wb = excelGeneratorService.createExcelFile(todos);
 
                             wb.write(attributes.getResponse().getOutputStream());
@@ -120,6 +119,12 @@ public class HomePage extends BasePage {
                         }
                     }
                 });
+
+                response.disableCaching();
+                response.setFileName("tarefas_" + System.currentTimeMillis() + ".xlsx");
+                response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                response.setCacheDuration(Duration.ZERO);
+                response.setContentDisposition(ContentDisposition.ATTACHMENT);
 
                 return response;
             }
