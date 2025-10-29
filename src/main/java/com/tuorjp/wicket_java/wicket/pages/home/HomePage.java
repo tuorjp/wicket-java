@@ -87,7 +87,15 @@ public class HomePage extends BasePage {
                 ajaxRequestTarget.add(sectionForm);
             }
         };
-        form.add(btnAdd, btnRemove);
+
+        AjaxSubmitLink downloadExcelBtn = new AjaxSubmitLink("downloadExcelBtn", form) {
+            @Override
+            protected void onSubmit(AjaxRequestTarget target) {
+
+            }
+        };
+
+        form.add(btnAdd, btnRemove, downloadExcelBtn);
 
         //adicionando formulário invisível de novo item dentro do form principal
         formNew.setOutputMarkupPlaceholderTag(true);
