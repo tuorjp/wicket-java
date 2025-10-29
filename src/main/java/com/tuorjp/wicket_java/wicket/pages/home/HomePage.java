@@ -5,8 +5,8 @@ import com.tuorjp.wicket_java.model.Todo;
 import com.tuorjp.wicket_java.service.MongoDBService;
 import com.tuorjp.wicket_java.wicket.pages.BasePage;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -30,6 +30,8 @@ public class HomePage extends BasePage {
 
     FeedbackPanel feedbackPanel;
 
+    LoadableDetachableModel<List<Todo>> todoListModel;
+
     public HomePage() {
         Label welcomeLabel = new Label("welcomeMessage", "Aplicação Lista de Tarefas ");
         add(welcomeLabel);
@@ -42,8 +44,15 @@ public class HomePage extends BasePage {
         sectionForm.setOutputMarkupId(true);
         add(sectionForm);
 
+        LoadableDetachableModel<Todo> newTodoModel = new LoadableDetachableModel<Todo>() {
+            @Override
+            protected Todo load() {
+                return new Todo();
+            }
+        };
+
         //formulário principal
-        Form<Void> form = new Form("form");
+        Form<Todo> form = new Form<>("form", new CompoundPropertyModel<>(newTodoModel));
         sectionForm.add(form);
 
         WebMarkupContainer formNew = new WebMarkupContainer("formNew");
@@ -55,7 +64,30 @@ public class HomePage extends BasePage {
                 ajaxRequestTarget.add(formNew);
             }
         };
-        form.add(btnAdd);
+
+        AjaxSubmitLink btnRemove = new AjaxSubmitLink("remove", form){
+            @Override
+            protected void onSubmit(AjaxRequestTarget ajaxRequestTarget) { // Mude de onClick para onSubmit
+                List<Todo> todos = todoListModel.getObject();
+
+                List<Todo> todosToRemove = todos.stream()
+                        .filter(Todo::isSelected)
+                        .toList();
+
+                if (todosToRemove.isEmpty()) {
+                    showInfo(ajaxRequestTarget, "Nenhum item selecionado.");
+                    return;
+                }
+
+                mongoDBService.removeItems(todosToRemove);
+
+                todoListModel.detach();
+
+                showInfo(ajaxRequestTarget, todosToRemove.size() + " itens selecionados foram removidos.");
+                ajaxRequestTarget.add(sectionForm);
+            }
+        };
+        form.add(btnAdd, btnRemove);
 
         //adicionando formulário invisível de novo item dentro do form principal
         formNew.setOutputMarkupPlaceholderTag(true);
@@ -63,31 +95,28 @@ public class HomePage extends BasePage {
         form.add(formNew);
 
         //vincula o model aos campos do formulário
-        Todo todoItem = new Todo();
-        form.setDefaultModel(new CompoundPropertyModel<Object>(todoItem));
+        form.setDefaultModel(new CompoundPropertyModel<>(newTodoModel));
         TextField<String> title = new TextField<>("title");
         TextField<String> body = new TextField<>("body");
-        AjaxLink<Void> btnSave = new AjaxLink<Void>("save") {
-            @Override
-            public void onClick(AjaxRequestTarget ajaxRequestTarget) {
-                Todo todo = new Todo();
-                todo.setTitle(title.getValue());
-                todo.setBody(body.getValue());
-                mongoDBService.save(todo);
 
-                todoItem.setTitle("");
-                todoItem.setBody("");
+        AjaxSubmitLink btnSave = new AjaxSubmitLink("save", form) {
+            @Override
+            protected void onSubmit(AjaxRequestTarget ajaxRequestTarget) { // Mude de onClick para onSubmit
+                Todo todoToSave = form.getModelObject();
+
+                mongoDBService.save(todoToSave);
+
+                todoListModel.detach();
 
                 formNew.setVisible(false);
                 showInfo(ajaxRequestTarget,"Tarefa adicionada com sucesso");
                 ajaxRequestTarget.add(sectionForm);
             }
         };
-        btnSave.add(new AjaxFormSubmitBehavior(form, "click") {});
         formNew.add(title, body, btnSave);
 
         //lista de tarefas
-        LoadableDetachableModel<List<Todo>> todoListModel = new LoadableDetachableModel<List<Todo>>() {
+        todoListModel = new LoadableDetachableModel<List<Todo>>() {
             @Override
             protected List<Todo> load() {
                 return mongoDBService.fetchAllItems();

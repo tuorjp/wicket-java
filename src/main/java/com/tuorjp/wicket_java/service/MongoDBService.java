@@ -40,4 +40,8 @@ public class MongoDBService {
                 .stream(todoRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
     }
+
+    public void removeItems(List<Todo> todosToRemove) {
+        todoRepository.deleteAll(todosToRemove);
+    }
 }
