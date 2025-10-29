@@ -101,7 +101,7 @@ public class HomePage extends BasePage {
 
         AjaxSubmitLink btnSave = new AjaxSubmitLink("save", form) {
             @Override
-            protected void onSubmit(AjaxRequestTarget ajaxRequestTarget) { // Mude de onClick para onSubmit
+            protected void onSubmit(AjaxRequestTarget ajaxRequestTarget) {
                 Todo todoToSave = form.getModelObject();
 
                 mongoDBService.save(todoToSave);
