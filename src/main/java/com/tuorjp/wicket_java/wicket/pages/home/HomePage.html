@@ -1,7 +1,27 @@
-<wicket:extend>
+<wicket:extend xmlns:wicket="http://www.w3.org/1999/xhtml">
     <style>
     </style>
     <h2 wicket:id="welcomeMessage">Apache wicket TODO app</h2>
+
+    <form wicket:id="form">
+        <div class="tollbar-top" style="padding-top: 20px">
+            <button wicket:id="addItemLink" type="button" class="btn btn-secondary btn-sm">Add new item</button>
+        </div>
+
+        <div wicket:id="formNew" style="padding-top: 5px; background-color: #eeeeee">
+            <table cellpadding="5">
+                <tr>
+                   <td>Title</td>
+                    <td><input wicket:id="title" type="text"/></td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td><input wicket:id="body" type="text"/></td>
+                </tr>
+            </table>
+            <button wicket:id="save" type="button" class="btn btn-success btn-sm">Save</button>
+        </div>
+    </form>
 
     <div class="items">
         <table class="table">
