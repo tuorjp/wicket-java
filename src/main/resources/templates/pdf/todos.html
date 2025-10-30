@@ -3,6 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <title>Todos Title</title>
+    <style>
+        table td {
+            padding: 5px;
+        }
+
+        table th {
+            background-color: #eeeeee;
+        }
+    </style>
 </head>
 
 <body>
@@ -10,13 +19,17 @@
 
     <table>
         <tr>
-            <th>Title</th>
-            <th>Description</th>
+            <th style="width: 250px">Title</th>
+            <th style="width: 400px;">Description</th>
         </tr>
         <tr th:each="item: ${items}">
             <td th:text="${item.title}"></td>
             <td th:text="${item.body}"></td>
         </tr>
     </table>
+
+    <div style="padding-top: 20px">
+        <img th:src="${image1}" alt="" />
+    </div>
 </body>
 </html>
