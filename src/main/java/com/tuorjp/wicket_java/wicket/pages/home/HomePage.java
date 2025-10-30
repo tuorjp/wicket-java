@@ -43,6 +43,8 @@ public class HomePage extends BasePage {
 
     LoadableDetachableModel<List<Todo>> todoListModel;
 
+    AjaxLink<Void> downloadExcelBtn;
+
     public HomePage() {
         Label welcomeLabel = new Label("welcomeMessage", "Aplicação Lista de Tarefas ");
         add(welcomeLabel);
@@ -94,6 +96,12 @@ public class HomePage extends BasePage {
 
                 todoListModel.detach();
 
+                List<Todo> todosUpdated = mongoDBService.fetchAllItems();
+
+                if(todosUpdated.isEmpty()) {
+                    downloadExcelBtn.setVisible(false);
+                }
+
                 showInfo(ajaxRequestTarget, todosToRemove.size() + " itens selecionados foram removidos.");
                 ajaxRequestTarget.add(sectionForm);
             }
@@ -108,7 +116,6 @@ public class HomePage extends BasePage {
                     @Override
                     public void writeData(Attributes attributes) throws IOException {
                         try {
-//                            List<Todo> todos = todoListModel.getObject();
                             List<Todo> todos = mongoDBService.fetchAllItems();
                             Workbook wb = excelGeneratorService.createExcelFile(todos);
 
@@ -133,7 +140,7 @@ public class HomePage extends BasePage {
         AjaxDownloadBehavior downloadExcel = new AjaxDownloadBehavior(dynamicExcelResource);
 
 
-        AjaxLink<Void> downloadExcelBtn = new AjaxLink<Void>("downloadExcelBtn") {
+        downloadExcelBtn = new AjaxLink<Void>("downloadExcelBtn") {
             @Override
             public void onClick(AjaxRequestTarget ajaxRequestTarget) {
                 downloadExcel.initiate(ajaxRequestTarget);
@@ -163,6 +170,7 @@ public class HomePage extends BasePage {
                 todoListModel.detach();
 
                 formNew.setVisible(false);
+                downloadExcelBtn.setVisible(true);
                 showInfo(ajaxRequestTarget,"Tarefa adicionada com sucesso");
                 ajaxRequestTarget.add(sectionForm);
             }
