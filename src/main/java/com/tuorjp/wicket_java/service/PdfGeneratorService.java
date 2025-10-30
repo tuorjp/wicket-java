@@ -42,6 +42,7 @@ public class PdfGeneratorService {
         context.setVariable("items", todos);
         context.setVariable("title", "Todos list :" + todos.size());
         context.setVariable("image1", ImageUtils.convertImageToBase64("pdf/images/image1.png"));
+        context.setVariable("image2", BarCodeService.getBarCodeAsBase64("ToDo-123456789"));
 
         return springTemplateEngine.process("pdf/todos.html", context);
     }
