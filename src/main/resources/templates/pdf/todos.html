@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Todos Title</title>
+</head>
+
+<body>
+    <h2 th:text="${title}"></h2>
+
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+        </tr>
+        <tr th:each="item: ${items}">
+            <td th:text="${item.title}"></td>
+            <td th:text="${item.body}"></td>
+        </tr>
+    </table>
+</body>
+</html>
