@@ -4,6 +4,7 @@ import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
 import com.tuorjp.wicket_java.model.Todo;
 import com.tuorjp.wicket_java.service.ExcelGeneratorService;
 import com.tuorjp.wicket_java.service.MongoDBService;
+import com.tuorjp.wicket_java.service.PdfGeneratorService;
 import com.tuorjp.wicket_java.wicket.pages.BasePage;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -26,6 +27,7 @@ import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -38,6 +40,9 @@ public class HomePage extends BasePage {
 
     @SpringBean
     private ExcelGeneratorService excelGeneratorService;
+
+    @SpringBean
+    private PdfGeneratorService pdfGeneratorService;
 
     private FeedbackPanel feedbackPanel;
 
@@ -137,9 +142,46 @@ public class HomePage extends BasePage {
             }
         };
 
+        IResource dynamicPDFResource = new AbstractResource() {
+            @Override
+            protected ResourceResponse newResourceResponse(Attributes attributes) {
+                ResourceResponse response = new ResourceResponse();
+
+                response.setWriteCallback(new WriteCallback() {
+                    @Override
+                    public void writeData(Attributes attributes) throws IOException {
+                        try {
+                            List<Todo> todos = mongoDBService.fetchAllItems();
+                            ByteArrayOutputStream baos = pdfGeneratorService.createdPdf(todos);
+                            baos.writeTo(attributes.getResponse().getOutputStream());
+                        } catch (Exception e) {
+                            throw new IOException("Erro ao gerar o arquivo PDF", e);
+                        }
+                    }
+                });
+
+                response.disableCaching();
+                response.setFileName("tarefas_" + System.currentTimeMillis() + ".pdf");
+                response.setContentType("application/pdf");
+                response.setCacheDuration(Duration.ZERO);
+                response.setContentDisposition(ContentDisposition.ATTACHMENT);
+
+                return response;
+            }
+        };
+
         AjaxDownloadBehavior downloadExcel = new AjaxDownloadBehavior(dynamicExcelResource);
+        AjaxDownloadBehavior downloadPDF = new AjaxDownloadBehavior(dynamicPDFResource);
 
+        //PDF
+        AjaxLink<Void> downloadPdfBtn = new AjaxLink<Void>("downloadPdfBtn") {
+            @Override
+            public void onClick(AjaxRequestTarget ajaxRequestTarget) {
+                downloadPDF.initiate(ajaxRequestTarget);
+            }
+        };
 
+        //EXCEL
         downloadExcelBtn = new AjaxLink<Void>("downloadExcelBtn") {
             @Override
             public void onClick(AjaxRequestTarget ajaxRequestTarget) {
@@ -147,8 +189,8 @@ public class HomePage extends BasePage {
             }
         };
 
-        form.add(btnAdd, btnRemove, downloadExcelBtn);
-        form.add(downloadExcel);
+        form.add(btnAdd, btnRemove, downloadExcelBtn, downloadPdfBtn);
+        form.add(downloadExcel, downloadPDF);
 
         //adicionando formulário invisível de novo item dentro do form principal
         formNew.setOutputMarkupPlaceholderTag(true);
